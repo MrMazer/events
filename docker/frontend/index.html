@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Planner</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url('https://source.unsplash.com/1920x1080/?event,planning');
+            background-size: cover;
+            background-position: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            color: white;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            padding: 12px 25px;
+            background-color: rgba(0, 128, 255, 0.8);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: rgba(0, 128, 255, 1);
+            transform: scale(1.05);
+        }
+
+        .logout {
+            background-color: rgba(255, 69, 58, 0.8);
+        }
+
+        .logout:hover {
+            background-color: rgba(255, 69, 58, 1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Event Planner</h1>
+    <button class="button" onclick="viewEvents()">View Events</button>
+    <button class="button" onclick="viewContacts()">View Contacts</button>
+    <button class="button" onclick="createEventFeedback()">Create Event Feedback</button>
+    <button class="button" onclick="viewEventFeedback()">View Event Feedback</button>
+    <button class="button" onclick="viewEventMedia()">Event Media</button>
+    <button class="button" onclick="viewLocations()">Locations</button>
+    <button class="button" onclick="viewLogs()">Logs</button>
+    <button class="button" onclick="createNewEvent()">Create Event</button>
+    <button class="button logout" onclick="logout()">Logout</button>
+
+    <script>
+        // Функция для выхода из системы
+        function logout() {
+            localStorage.removeItem('authToken');
+            window.location.href = '/auth.html';
+        }
+
+        // Просмотр мероприятий
+        function viewEvents() {
+            window.location.href = '/view_events.html';
+        }
+
+        // Просмотр контактов
+        function viewContacts() {
+            window.location.href = '/contacts.html';
+        }
+
+        // Создание отзыва о мероприятии
+        function createEventFeedback() {
+            window.location.href = '/event_feedback.html';
+        }
+
+        // Просмотр отзывов о мероприятии
+        function viewEventFeedback() {
+            const eventID = prompt("Enter Event ID to view feedback:");
+            if (eventID) {
+                window.location.href = `/event_score.html?eventID=${eventID}`;
+            }
+        }
+
+        // Просмотр медиа мероприятий
+        function viewEventMedia() {
+            window.location.href = '/event_media.html';
+        }
+
+        // Просмотр локаций
+        function viewLocations() {
+            window.location.href = '/locations.html';
+        }
+
+        // Просмотр журналов
+        function viewLogs() {
+            window.location.href = '/logs.html';
+        }
+
+        // Создание новых мероприятий
+        function createNewEvent() {
+            window.location.href = '/events_create.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .contact-item {
+            background-color: #fff;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .contact-item strong {
+            font-size: 18px;
+        }
+
+        #loading {
+            font-size: 20px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Contacts List</h1>
+
+    <!-- Контейнер для вывода контактов -->
+    <div id="loading">Loading contacts...</div>
+    <div id="contactsList"></div>
+
+    <script>
+        // Функция для загрузки списка контактов
+        function loadContacts() {
+            fetch('http://localhost:8084/contacts')  // GET-запрос на сервер
+                .then(response => response.json())
+                .then(data => {
+                    const contactsList = document.getElementById('contactsList');
+                    contactsList.innerHTML = '';  // Очистить сообщение "Loading"
+                    
+                    // Если список контактов пуст, показываем сообщение
+                    if (data.length === 0) {
+                        contactsList.innerHTML = '<p>No contacts found.</p>';
+                    } else {
+                        // Отображаем контакты
+                        data.forEach(contact => {
+                            const contactItem = document.createElement('div');
+                            contactItem.classList.add('contact-item');
+                            // Убедитесь, что имя и email правильно отображаются
+                            contactItem.innerHTML = `<strong>${contact.username}</strong><br>Email: ${contact.email}`;
+                            contactsList.appendChild(contactItem);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching contacts:', error);
+                    const contactsList = document.getElementById('contactsList');
+                    contactsList.innerHTML = '<p>Error loading contacts.</p>';
+                });
+        }
+
+        // Загружаем контакты при загрузке страницы
+        window.onload = loadContacts;
+    </script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Feedback</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        input, textarea, select {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Event Feedback</h1>
+    <form id="feedbackForm">
+        <label for="event_id">Event ID</label>
+        <input type="number" id="event_id" name="event_id" required>
+
+        <label for="user_id">User ID</label>
+        <input type="number" id="user_id" name="user_id" required>
+
+        <label for="rating">Rating (1-5)</label>
+        <select id="rating" name="rating" required>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select>
+
+        <label for="comment">Comment</label>
+        <textarea id="comment" name="comment" rows="4" required></textarea>
+
+        <button type="submit">Submit Feedback</button>
+    </form>
+
+    <script>
+        document.getElementById("feedbackForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const eventData = {
+                event_id: parseInt(document.getElementById("event_id").value),
+                user_id: parseInt(document.getElementById("user_id").value),
+                rating: parseInt(document.getElementById("rating").value),
+                comment: document.getElementById("comment").value
+            };
+
+            fetch('http://localhost:8085/event-feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(eventData)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Failed to submit feedback");
+                alert("Feedback submitted successfully!");
+                window.location.href = "event_score.html?eventID=" + eventData.event_id;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Error submitting feedback.");
+            });
+        });
+    </script>
+</body>
+</html>

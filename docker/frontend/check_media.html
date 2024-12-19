@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Media</title>
+</head>
+<body>
+    <h1>Media for Event</h1>
+    <div id="mediaList"></div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('eventId');
+
+        fetch(`http://localhost:8086/event-media/${eventId}`)
+            .then(response => response.json())
+            .then(data => {
+                const mediaList = document.getElementById('mediaList');
+                mediaList.innerHTML = '';
+
+                if (data.length === 0) {
+                    mediaList.innerHTML = '<p>No media found for this event.</p>';
+                } else {
+                    data.forEach(media => {
+                        mediaList.innerHTML += `
+                            <div>
+                                <strong>Type: ${media.media_type}</strong><br>
+                                <a href="${media.media_url}" target="_blank">View Media</a><br>
+                                Uploaded at: ${new Date(media.uploaded_at).toLocaleString()}<br>
+                                <hr>
+                            </div>
+                        `;
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching media:', error);
+            });
+    </script>
+</body>
+</html>

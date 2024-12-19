@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Media</title>
+</head>
+<body>
+    <h1>Upload Media</h1>
+    
+    <!-- Выбор события (выпадающий список) -->
+    <label for="eventSelect">Select Event:</label>
+    <select id="eventSelect">
+        <!-- Опции будут заполнены динамически -->
+    </select>
+    <br><br>
+
+    <!-- Форма для загрузки медиа -->
+    <form id="mediaForm">
+        <label for="mediaType">Media Type:</label>
+        <select id="mediaType" name="mediaType">
+            <option value="image">Image</option>
+            <option value="video">Video</option>
+        </select><br><br>
+
+        <label for="mediaURL">Media URL:</label>
+        <input type="text" id="mediaURL" name="mediaURL" required><br><br>
+
+        <button type="submit">Upload</button>
+    </form>
+
+    <script>
+        // Функция для загрузки событий и заполнения выпадающего списка
+        function loadEvents() {
+            fetch('http://localhost:8083/events/1') // Запрос для получения событий
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const eventSelect = document.getElementById('eventSelect');
+
+                    // Проверка на наличие событий
+                    if (data.length === 0) {
+                        alert('No events found.');
+                        return;
+                    }
+
+                    // Заполнение выпадающего списка событиями
+                    data.forEach(event => {
+                        const option = document.createElement('option');
+                        option.value = event.id;
+                        option.textContent = event.name;
+                        eventSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching events:', error);
+                    alert('Failed to load events.');
+                });
+        }
+
+        // Обработка отправки формы для загрузки медиа
+        document.getElementById('mediaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const eventId = document.getElementById('eventSelect').value;
+            const mediaType = document.getElementById('mediaType').value;
+            const mediaURL = document.getElementById('mediaURL').value;
+
+            // Проверка, чтобы все поля были заполнены
+            if (!eventId || !mediaType || !mediaURL) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            // Отправка данных медиа на сервер
+            fetch('http://localhost:8086/event-media', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    event_id: eventId,
+                    media_type: mediaType,
+                    media_url: mediaURL,
+                    uploaded_at: new Date().toISOString(),
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Media uploaded successfully!');
+                document.getElementById('mediaForm').reset(); // Очистка формы после успешной загрузки
+            })
+            .catch(error => {
+                console.error('Error uploading media:', error);
+                alert('Failed to upload media.');
+            });
+        });
+
+        // Загрузка событий при загрузке страницы
+        window.onload = loadEvents;
+    </script>
+</body>
+</html>

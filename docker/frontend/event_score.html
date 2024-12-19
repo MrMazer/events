@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Feedback</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .feedback-item {
+            background-color: white;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .feedback-item strong {
+            font-size: 18px;
+        }
+
+        #loading {
+            font-size: 20px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Event Feedback</h1>
+    <div id="loading">Loading feedback...</div>
+    <div id="feedbackList"></div>
+
+    <script>
+        function loadFeedback() {
+            const params = new URLSearchParams(window.location.search);
+            const eventID = params.get("eventID");
+
+            fetch(`http://localhost:8085/event-feedback/${eventID}`)
+                .then(response => response.json())
+                .then(data => {
+                    const feedbackList = document.getElementById('feedbackList');
+                    feedbackList.innerHTML = ''; // Clear loading message
+
+                    if (data.length === 0) {
+                        feedbackList.innerHTML = '<p>No feedback found.</p>';
+                    } else {
+                        data.forEach(feedback => {
+                            const feedbackItem = document.createElement('div');
+                            feedbackItem.classList.add('feedback-item');
+                            feedbackItem.innerHTML = `
+                                <strong>Rating:</strong> ${feedback.rating}<br>
+                                <strong>Comment:</strong> ${feedback.comment}<br>
+                                <strong>User ID:</strong> ${feedback.user_id}<br>
+                                <small>Submitted on: ${new Date(feedback.created_at).toLocaleString()}</small>
+                            `;
+                            feedbackList.appendChild(feedbackItem);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching feedback:', error);
+                    const feedbackList = document.getElementById('feedbackList');
+                    feedbackList.innerHTML = '<p>Error loading feedback.</p>';
+                });
+        }
+
+        window.onload = loadFeedback;
+    </script>
+</body>
+</html>

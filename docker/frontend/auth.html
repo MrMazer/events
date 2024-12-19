@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Authentication</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        label {
+            font-size: 14px;
+            color: #333;
+        }
+        input {
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .form-toggle {
+            margin-top: 10px;
+            text-align: center;
+        }
+        .form-toggle a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .form-toggle a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="authContainer">
+        <h1>User Authentication</h1>
+
+        <!-- Registration Form -->
+        <div id="registerFormContainer">
+            <h2>Register</h2>
+            <form id="registerForm">
+                <label for="registerUsername">Username:</label>
+                <input type="text" id="registerUsername" name="username" required>
+
+                <label for="registerEmail">Email:</label>
+                <input type="email" id="registerEmail" name="email" required oninput="validateEmail()">
+
+                <label for="registerPassword">Password:</label>
+                <input type="password" id="registerPassword" name="password" required>
+
+                <button type="submit">Register</button>
+            </form>
+            <div class="form-toggle">
+                <p>Already have an account? <a href="javascript:void(0)" onclick="toggleForms()">Login</a></p>
+            </div>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginFormContainer" style="display:none;">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <label for="loginUsername">Username:</label>
+                <input type="text" id="loginUsername" name="username" required>
+
+                <label for="loginPassword">Password:</label>
+                <input type="password" id="loginPassword" name="password" required>
+
+                <button type="submit">Login</button>
+            </form>
+            <div class="form-toggle">
+                <p>Don't have an account? <a href="javascript:void(0)" onclick="toggleForms()">Register</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Переключение между формами регистрации и входа
+        function toggleForms() {
+            const registerForm = document.getElementById('registerFormContainer');
+            const loginForm = document.getElementById('loginFormContainer');
+            if (registerForm.style.display === 'none') {
+                registerForm.style.display = 'block';
+                loginForm.style.display = 'none';
+            } else {
+                registerForm.style.display = 'none';
+                loginForm.style.display = 'block';
+            }
+        }
+
+        // Кастомная валидация для email
+        function validateEmail() {
+            const emailInput = document.getElementById('registerEmail');
+            const email = emailInput.value;
+            
+            // Регулярное выражение для валидности email
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            if (email && !emailPattern.test(email)) {
+                emailInput.setCustomValidity("Please enter a valid email address.");
+            } else {
+                emailInput.setCustomValidity("");
+            }
+        }
+
+        // Обработчик регистрации
+        document.getElementById('registerForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            // Проверяем, если email проходит валидацию
+            if (!email || !email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
+                alert("Please enter a valid email address.");
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8082/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, email, password }),
+                });
+
+                if (response.ok) {
+                    alert('Registration successful! You can now log in.');
+                    toggleForms(); // переключение на форму входа
+                } else {
+                    const error = await response.json();
+                    alert(`Registration failed: ${error.message}`);
+                }
+            } catch (err) {
+                console.error('Error during registration:', err);
+                alert('An error occurred during registration.');
+            }
+        });
+
+        // Обработчик входа
+        document.getElementById('loginForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch('http://localhost:8082/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`Login successful! Token: ${data.token}`);
+                    // Перенаправление на главную страницу приложения
+                    window.location.href = '/index.html'; // Укажите URL главной страницы
+                } else {
+                    const error = await response.json();
+                    alert(`Login failed: ${error.message}`);
+                }
+            } catch (err) {
+                console.error('Error during login:', err);
+                alert('An error occurred during login.');
+            }
+        });
+    </script>
+</body>
+</html>
